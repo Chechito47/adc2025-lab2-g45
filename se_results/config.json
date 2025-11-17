@@ -7350,7 +7350,7 @@
                         "addr_ranges": [
                             "0:18446744073709551615"
                         ],
-                        "assoc": 1,
+                        "assoc": 8,
                         "clk_domain": "system.cpu_cluster.clk_domain",
                         "clusivity": "mostly_incl",
                         "compressor": null,
@@ -7452,7 +7452,7 @@
                         },
                         "response_latency": 1,
                         "sequential_access": false,
-                        "size": 8192,
+                        "size": 32768,
                         "system": "system",
                         "tag_latency": 1,
                         "tags": {
@@ -7460,7 +7460,7 @@
                             "cxx_class": "gem5::BaseSetAssoc",
                             "name": "tags",
                             "path": "system.cpu_cluster.cpus.dcache.tags",
-                            "assoc": 1,
+                            "assoc": 8,
                             "block_size": 64,
                             "clk_domain": "system.cpu_cluster.clk_domain",
                             "entry_size": 64,
@@ -7470,10 +7470,10 @@
                                 "cxx_class": "gem5::SetAssociative",
                                 "name": "indexing_policy",
                                 "path": "system.cpu_cluster.cpus.dcache.tags.indexing_policy",
-                                "assoc": 1,
+                                "assoc": 8,
                                 "entry_size": 64,
                                 "eventq_index": 0,
-                                "size": 8192
+                                "size": 32768
                             },
                             "power_model": [],
                             "power_state": {
@@ -7491,7 +7491,7 @@
                             },
                             "replacement_policy": "system.cpu_cluster.cpus.dcache.replacement_policy",
                             "sequential_access": false,
-                            "size": 8192,
+                            "size": 32768,
                             "system": "system",
                             "tag_latency": 1,
                             "warmup_percentage": 0

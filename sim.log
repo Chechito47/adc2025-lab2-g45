@@ -3,8 +3,8 @@ gem5 is copyrighted software; use the --copyright option for details.
 
 gem5 version 23.0.0.1
 gem5 compiled Sep  6 2023 14:34:38
-gem5 started Nov 17 2025 04:05:06
-gem5 executing on 996accff19bb, pid 1
+gem5 started Nov 17 2025 12:44:58
+gem5 executing on b79703d1c0a5, pid 1
 command line: /opt/gem5/build/ARM/gem5.opt -d ./se_results/ /local/scripts/se.py /local/scripts/cpu_config.toml in_order /local/benchmarks/ej_daxpy.img
 
 warn: The `get_runtime_isa` function is deprecated. Please migrate away from using this function.
@@ -59,4 +59,4 @@ src/sim/syscall_emul.hh:1014: warn: readlink() called on '/proc/self/exe' may yi
       Returning '/local/benchmarks/ej_daxpy.img'
 src/arch/arm/insts/pseudo.cc:172: warn: 	instruction 'bti' unimplemented
 src/sim/syscall_emul.cc:74: warn: ignoring syscall mprotect(...)
-exiting with last active thread context (0) @ 153864750
+exiting with last active thread context (0) @ 105960750
