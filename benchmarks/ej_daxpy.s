@@ -31,9 +31,49 @@ main:
 	ldr     x4, =Z
 
 //---------------------- CODE HERE ------------------------------------
+// Cargar N
+    ldr w0, N              // w0 = 4096
+    
+    // Cargar alpha directamente
+    fmov d0, #2.5          // d0 = alpha
+    
+    // Cargar direcciones de vectores
+    adr x1, X              // dirección de X
+    adr x2, Y              // dirección de Y
+    adr x3, Z              // dirección de Z
+    
+    // Inicializar vectores X e Y
+    fmov d1, #1.0          // X[i] = 1.0
+    fmov d2, #2.0          // Y[i] = 2.0
+    mov x5, #0             // contador i
 
+init_loop:
+    cmp x5, x0
+    bge daxpy_start
+    str d1, [x1, x5, lsl #3]
+    str d2, [x2, x5, lsl #3]
+    add x5, x5, #1
+    b init_loop
 
+daxpy_start:
+    mov x5, #0             // reiniciar i = 0
 
+daxpy_loop:
+    cmp x5, x0
+    bge daxpy_end
+    
+    ldr d3, [x1, x5, lsl #3]   // d3 = X[i]
+    ldr d4, [x2, x5, lsl #3]   // d4 = Y[i]
+    
+    fmul d5, d0, d3            // d5 = alpha * X[i]
+    fadd d5, d5, d4            // d5 += Y[i]
+    
+    str d5, [x3, x5, lsl #3]   // Z[i] = d5
+    
+    add x5, x5, #1
+    b daxpy_loop
+
+daxpy_end:
 //---------------------- END CODE -------------------------------------
 
 	mov 	x0, 0

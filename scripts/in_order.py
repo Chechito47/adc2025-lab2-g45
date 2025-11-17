@@ -35,8 +35,8 @@ class DCache(Cache):
     response_latency = 1
     mshrs = 4
     tgts_per_mshr = 8
-    size = "32kB"
-    assoc = 2
+    size = "8kB"
+    assoc = 1
     write_buffers = 4
     prefetcher = StridePrefetcher(queue_size=4, degree=4)
 

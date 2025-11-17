@@ -1,0 +1,62 @@
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 23.0.0.1
+gem5 compiled Sep  6 2023 14:34:38
+gem5 started Nov 17 2025 04:05:06
+gem5 executing on 996accff19bb, pid 1
+command line: /opt/gem5/build/ARM/gem5.opt -d ./se_results/ /local/scripts/se.py /local/scripts/cpu_config.toml in_order /local/benchmarks/ej_daxpy.img
+
+warn: The `get_runtime_isa` function is deprecated. Please migrate away from using this function.
+info: 1. command and arguments: ['/local/benchmarks/ej_daxpy.img']
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdDiv
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdReduceAdd
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdReduceAlu
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdReduceCmp
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdFloatReduceAdd
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdFloatReduceCmp
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdAes
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdAesMix
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdSha1Hash
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdSha1Hash2
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdSha256Hash
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdSha256Hash2
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdShaSigma2
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdShaSigma3
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass SimdPredAlu
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass Matrix
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass MatrixMov
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass MatrixOP
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorUnitStrideLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorUnitStrideStore
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorUnitStrideMaskLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorUnitStrideMaskStore
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorStridedLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorStridedStore
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorIndexedLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorIndexedStore
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorUnitStrideFaultOnlyFirstLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorWholeRegisterLoad
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorWholeRegisterStore
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorIntegerArith
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorFloatArith
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorFloatConvert
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorIntegerReduce
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorFloatReduce
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorMisc
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorIntegerExtension
+src/cpu/minor/execute.cc:166: warn: No functional unit for OpClass VectorConfig
+system.remote_gdb: Listening for connections on port 7000
+src/sim/simulate.cc:194: info: Entering event queue @ 0.  Starting simulation...
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.hh:1014: warn: readlink() called on '/proc/self/exe' may yield unexpected results in various settings.
+      Returning '/local/benchmarks/ej_daxpy.img'
+src/arch/arm/insts/pseudo.cc:172: warn: 	instruction 'bti' unimplemented
+src/sim/syscall_emul.cc:74: warn: ignoring syscall mprotect(...)
+exiting with last active thread context (0) @ 153864750
