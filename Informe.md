@@ -12,7 +12,7 @@
 ## Codigo utilizado
 Usamos fmul y fadd porque usamos punto flotante.  
 Agregamos este codigo al `benchmarks/ej_daxpy.s`:  
-```aarch64
+```arm
 //=== INICIALIZACION ===
 //Cargar parametros y configurar vectores
 ldr w0, N              			//w0 = N = 4096 elementos
