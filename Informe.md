@@ -64,34 +64,38 @@ daxpy_end:
 Estos son los resultados obtenidos por consola luego de modificar **size** y **assoc** de **Dcache** en `in_order.py`:  
 ### 1 via
 | Cache | numCycles | idleCycles | overallHits | readHits |
-|---------------|--------|-------|------------|
+|---------------|--------|-------|------------|------|
 | 8kB | 493949 | 375074 | 24627 | 500 |
 | 16kB | 493997 | 375122 | 3061 | 500 |
 | 32kB | 494181 | 375305 | 3061 | 501 |
+
 ![ScreenShot](Imagenes/1via.png)
 
 ### 2 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
-|---------------|--------|-------|------------|
+|---------------|--------|-------|------------|------|
 | 8kB | 367844 | 270309 | 11418 | 4426 |
 | 16kB | 367876 | 270341 | 11418 | 4426 |
 | 32kB | 367876 | 270341 | 11418 | 4426 |
+
 ![ScreenShot](Imagenes/2via.png)
 
 ### 4 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
-|---------------|--------|-------|------------|
+|---------------|--------|-------|------------|------|
 | 8kB | 302151 | 221905 | 17712 | 7699 |
 | 16kB | 302235 | 221989 | 17712 | 7699 |
 | 32kB | 302235 | 221989 | 17712 | 7699 |
+
 ![ScreenShot](Imagenes/4via.png)
 
 ### 8 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
-|---------------|--------|-------|------------|
+|---------------|--------|-------|------------|------|
 | 8kB | 302219 | 221973 | 17712 | 7699 |
 | 16kB | 302235 | 221989 | 17712 | 7699 |
 | 32kB | 302235 | 221989 | 17712 | 7699 |
+
 ![ScreenShot](Imagenes/8via.png)
 
 ## Explicacion de los resultados obtenidos
