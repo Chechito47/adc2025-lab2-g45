@@ -8,133 +8,97 @@
 ## Ejercicios resueltos:
 - Ejercicio 1
 
-## Codigo utilizado para incisos a-b-c-d
+# Incisos a-b-c-d
+## Codigo utilizado
 Usamos fmul y fadd porque usamos punto flotante.  
 Agregamos este codigo al `benchmarks/ej_daxpy.s`:  
 ```assembly
-// Cargar N
-    ldr w0, N              // w0 = 4096
+//=== INICIALIZACION ===
+//Cargar parametros y configurar vectores
+ldr w0, N              			//w0 = N = 4096 elementos
+fmov d0, #2.5          			//d0 = alpha = 2.5
     
-    // Cargar alpha directamente
-    fmov d0, #2.5          // d0 = alpha
+//Obtener direcciones base de los vectores
+adr x1, X              			//x1 => base de X
+adr x2, Y              			//x2 => base de Y
+adr x3, Z              			//x3 => base de Z
     
-    // Cargar direcciones de vectores
-    adr x1, X              // dirección de X
-    adr x2, Y              // dirección de Y
-    adr x3, Z              // dirección de Z
-    
-    // Inicializar vectores X e Y
-    fmov d1, #1.0          // X[i] = 1.0
-    fmov d2, #2.0          // Y[i] = 2.0
-    mov x5, #0             // contador i
+//Inicializar vectores X e Y
+fmov d1, #1.0          			//d1 = 1.0 (valor para X,  X[i] = 1.0)
+fmov d2, #2.0          			//d2 = 2.0 (valor para Y,  Y[i] = 2.0)
+mov x5, #0             			//x5 = i = 0 (contador)
 
+//=== LOOP DE INICIALIZACION ===
 init_loop:
-    cmp x5, x0
-    bge daxpy_start
-    str d1, [x1, x5, lsl #3]
-    str d2, [x2, x5, lsl #3]
-    add x5, x5, #1
-    b init_loop
+    cmp x5, x0					//Comparar i con N
+    bge daxpy_start				//Si i >= N => salir a DAXPY
 
+    str d1, [x1, x5, lsl #3]	//X[i] = 1.0 (offset = i*8)
+    str d2, [x2, x5, lsl #3]	//Y[i] = 2.0  (offset = i*8)
+
+    add x5, x5, #1				//i++
+    b init_loop					//Repito loop hasta que i>=N
+
+//=== CALCULO DAXPY ===
 daxpy_start:
-    mov x5, #0             // reiniciar i = 0
+    mov x5, #0             		//Reiniciar i = 0
 
 daxpy_loop:
-    cmp x5, x0
-    bge daxpy_end
+    cmp x5, x0					//Comparar i con N
+    bge daxpy_end				//Si i >= N, terminar
+
+    ldr d3, [x1, x5, lsl #3]   	//d3 = X[i]
+    ldr d4, [x2, x5, lsl #3]   	//d4 = Y[i]
+
+    fmul d5, d0, d3            	//d5 = alpha * X[i]
+    fadd d5, d5, d4            	//d5 = d5 + Y[i]
     
-    ldr d3, [x1, x5, lsl #3]   // d3 = X[i]
-    ldr d4, [x2, x5, lsl #3]   // d4 = Y[i]
+    str d5, [x3, x5, lsl #3]   	//Z[i] = d5
     
-    fmul d5, d0, d3            // d5 = alpha * X[i]
-    fadd d5, d5, d4            // d5 += Y[i]
-    
-    str d5, [x3, x5, lsl #3]   // Z[i] = d5
-    
-    add x5, x5, #1
-    b daxpy_loop
+    add x5, x5, #1				//i++
+    b daxpy_loop				//Repito loop hasta que i>=N
 
 daxpy_end:
 ```
 ## Resultados obtenidos
 Estos son los resultados obtenidos por consola luego de modificar **size** y **assoc** de **Dcache** en `in_order.py`:  
 ### 1 via
-#### cache=8kB, assoc=1
-- system.cpu_cluster.cpus.numCycles                                      493949.0
-- system.cpu_cluster.cpus.idleCycles                                     375074.0
-- system.cpu_cluster.cpus.icache.overallHits::total                      24627.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     500.0
-
-#### cache=16kB, assoc=1
-- system.cpu_cluster.cpus.numCycles                                      493997.0
-- system.cpu_cluster.cpus.idleCycles                                     375122.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      3061.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     500.0
-
-#### cache=32kB, assoc=1
-- system.cpu_cluster.cpus.numCycles                                      494181.0
-- system.cpu_cluster.cpus.idleCycles                                     375305.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      3061.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     501.0
+| Cache | numCycles | idleCycles | overallHits | readHits |
+|---------------|--------|-------|------------|
+| 8kB | 493949 | 375074 | 24627 | 500 |
+| 16kB | 493997 | 375122 | 3061 | 500 |
+| 32kB | 494181 | 375305 | 3061 | 501 |
+![ScreenShot](Imagenes/1via.png)
 
 ### 2 vias
-#### cache=8kB, assoc=2
-- system.cpu_cluster.cpus.numCycles                                      367844.0
-- system.cpu_cluster.cpus.idleCycles                                     270309.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      11418.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     4426.0
-
-#### cache=16kB, assoc=2
-- system.cpu_cluster.cpus.numCycles                                      367876.0
-- system.cpu_cluster.cpus.idleCycles                                     270341.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      11418.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     4426.0
-
-#### cache=32kB, assoc=2
-- system.cpu_cluster.cpus.numCycles                                      367876.0
-- system.cpu_cluster.cpus.idleCycles                                     270341.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      11418.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     4426.0
+| Cache | numCycles | idleCycles | overallHits | readHits |
+|---------------|--------|-------|------------|
+| 8kB | 367844 | 270309 | 11418 | 4426 |
+| 16kB | 367876 | 270341 | 11418 | 4426 |
+| 32kB | 367876 | 270341 | 11418 | 4426 |
+![ScreenShot](Imagenes/2via.png)
 
 ### 4 vias
-#### cache=8kB, assoc=4
-- system.cpu_cluster.cpus.numCycles                                      302151.0
-- system.cpu_cluster.cpus.idleCycles                                     221905.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
-
-#### cache=16kB, assoc=4
-- system.cpu_cluster.cpus.numCycles                                      302235.0
-- system.cpu_cluster.cpus.idleCycles                                     221989.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
-
-#### cache=32kB, assoc=4
-- system.cpu_cluster.cpus.numCycles                                      302235.0
-- system.cpu_cluster.cpus.idleCycles                                     221989.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
+| Cache | numCycles | idleCycles | overallHits | readHits |
+|---------------|--------|-------|------------|
+| 8kB | 302151 | 221905 | 17712 | 7699 |
+| 16kB | 302235 | 221989 | 17712 | 7699 |
+| 32kB | 302235 | 221989 | 17712 | 7699 |
+![ScreenShot](Imagenes/4via.png)
 
 ### 8 vias
-#### cache=8kB, assoc=8
-- system.cpu_cluster.cpus.numCycles                                      302219.0
-- system.cpu_cluster.cpus.idleCycles                                     221973.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
+| Cache | numCycles | idleCycles | overallHits | readHits |
+|---------------|--------|-------|------------|
+| 8kB | 302219 | 221973 | 17712 | 7699 |
+| 16kB | 302235 | 221989 | 17712 | 7699 |
+| 32kB | 302235 | 221989 | 17712 | 7699 |
+![ScreenShot](Imagenes/8via.png)
 
-#### cache=16kB, assoc=8
-- system.cpu_cluster.cpus.numCycles                                      302235.0
-- system.cpu_cluster.cpus.idleCycles                                     221989.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
+## Explicacion de los resultados obtenidos
+explicar eso
 
-#### cache=32kB, assoc=8
-- system.cpu_cluster.cpus.numCycles                                      302235.0
-- system.cpu_cluster.cpus.idleCycles                                     221989.0
-- system.cpu_cluster.cpus.dcache.overallHits::total                      17712.0
-- system.cpu_cluster.cpus.dcache.ReadReq.hits::total                     7699.0
-
-## Codigo usado para incisos e-f
+# Incisos e-f
+## Codigo utilizado (mejorado)
 ```assembly
 // Cargar N
     ldr w0, N
@@ -322,10 +286,10 @@ Ahora los 4 valores de X e Y estan todos juntos en registros durante todo el cal
 
 | Operacion | Normal | Mejorado |
 |-----------|-------------------|---------------------|
-| **Loads de X** | 4 (uno por iteracion) | 4 (todos juntos) |
-| **Loads de Y** | 4 (uno por iteracion) | 4 (todos juntos) |
-| **Stores de Z** | 4 (uno por iteracion) | 4 (todos juntos) |
-| **Total accesos** | 12 | 12 |
+| Loads de X | 4 (uno por iteracion) | 4 (todos juntos) |
+| Loads de Y | 4 (uno por iteracion) | 4 (todos juntos) |
+| Stores de Z | 4 (uno por iteracion) | 4 (todos juntos) |
+| Total accesos | 12 | 12 |
 
 La diferencia radica en los miss y en los hits:  
 **Normal (entrelazan X, Y, Z):**
