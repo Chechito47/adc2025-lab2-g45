@@ -12,7 +12,7 @@
 ## Codigo utilizado
 Usamos fmul y fadd porque usamos punto flotante.  
 Agregamos este codigo al `benchmarks/ej_daxpy.s`:  
-```assembly
+```aarch64
 //=== INICIALIZACION ===
 //Cargar parametros y configurar vectores
 ldr w0, N              			//w0 = N = 4096 elementos
@@ -103,7 +103,7 @@ explicar eso
 
 # Incisos e-f
 ## Codigo utilizado (mejorado)
-```assembly
+```aarch64
 //=== INICIALIZACION ===
 //Cargar parametros y configurar vectores
 ldr w0, N              			//w0 = N = 4096 elementos
@@ -231,7 +231,7 @@ Nuestro codigo mejorado usa 12 registros de punto flotante:
 
 Si hacemos una compracion entre el codigo normal y el mejorado al querer procesar 4 accesos a memoria tendriamos lo siguiente:  
 **Flujo del codigo normal:**
-```assembly
+```aarch64
 //Iteracion 1 (i=0):
 ldr d3, [x1, x5, lsl #3]   //Load X[0] => d3
 ldr d4, [x2, x5, lsl #3]   //Load Y[0] => d4
@@ -263,7 +263,7 @@ str d5, [x3, x5, lsl #3]   //Store Z[3]
 El problema es que los datos se descartan luego de usarlos.
 
 **Flujo del codigo mejorado:**
-```assembly
+```aarch64
 //Calcular direcciones base
 add x8, x1, x7         //x8 = direccion X[i*4]
 add x9, x2, x7         //x9 = direccion Y[i*4]
@@ -335,13 +335,13 @@ De esta forma al traer una line traemos todos los X o Y segun corresponda.
 2. Mejor uso del pipeline
 
 **Flujo del codigo normal:**
-```assembly
+```aarch64
 add x5, x5, #1              //Modifica x5
 ldr d3, [x1, x5, lsl #3]    //Depende de x5
 ```
 
 **Flujo del codigo mejorado:**
-```assembly
+```aarch64
 add x8, x1, x7              //Se calcula una vez
 ldr d8,  [x8]               //Usa x8
 ldr d9,  [x8, #8]           //Usa x8
