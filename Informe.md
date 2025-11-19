@@ -108,8 +108,9 @@ str d5, [x3, x5, lsl #3]   //Escribe Z[i]
 - Los vectores estan ubicados consecutivamente en memoria
 
 ### Analisis de 1 via
+
 | Cache | numCycles | readHits | Hit Rate |
-|--------|-----------|-------|------|---------------|
+|--------|-----------|-------|---------------|
 | 8kB | 493949 | 500 | 6,1% |
 | 16kB | 493997 | 500 | 6,1% |
 | 32kB | 494181 | 501 | 6,1% |
@@ -144,8 +145,7 @@ Ejemplo para i=0:
 | 32kB | 367876| 4426 | 54% | 25,5% mejor |
 
 Vemos que hay una clara mejora pero el tamaño de la cache sigue sin importar demasiado.  
-**Explicacion:**  
-Con 2 vias cada indice puede almacenar 2 lineas diferentes por lo que X[i] e Y[i] pueden coexistir momentaneamente:
+**Explicacion:** Con 2 vias cada indice puede almacenar 2 lineas diferentes por lo que X[i] e Y[i] pueden coexistir momentaneamente:
 ```
 Lee X[i] => Se carga en via 0
 Lee Y[i] => Se carga en via 1 (X[i] permanece)
@@ -172,8 +172,7 @@ Probablemente si la cache fuese mas chiquita si importaria.
 | 32kB | 302235   | 7699 | 94% | 17,8% mejor |
 
 Ahora vemos que hay una **gran** mejora, el hit rate es bastante alto pero el tamaño de la cache sigue sin importar demasiado (el motivo sigue siendo el mismo que antes).  
-**Explicacion de la mejora:**  
-El sistema que detecta los patrones secuenciales y trae datos anticipadamente.  
+**Explicacion de la mejora:** El sistema que detecta los patrones secuenciales y trae datos anticipadamente.  
 
 Con 4 vias hay espacio para:
 - Lineas actuales de X, Y, Z
@@ -199,7 +198,7 @@ Entonces las lecturas de X[i] e Y[i] ahora son hits porque se trajeron por adela
 ### Analisis de 8 vias
 
 | Cache | numCycles | readHits | Diferencia vs 4 vias |
-|--------|-----------|-------|------|---------------|
+|--------|-----------|-------|---------------|
 | 8kB | 302219 | 7699 | +68 ciclos (0,02%) |
 | 16kB | 302235 | 7699 | 0 ciclos |
 | 32kB | 302235 | 7699 | 0 ciclos |
@@ -222,11 +221,11 @@ Con 4 vias ya hay suficiente espacio. Pasar a 8 vias solo agrega capacidad que n
 | 4 | ~302K  | 39% | 94% | 73% |
 | 8 | ~302K  | 39% | 94% | 73% |
 
-1. 1 via = mucho thrashing
-2. 2 vias = mayor mejora relativa (reduce conflictos criticos)
-3. 4 vias = rendimiento optimo (94% hits)
-4. 8 vias sin beneficio
-5. Tamaño de cache irrelevante (sin reutilizacion temporal)
+- 1 via = mucho thrashing
+- 2 vias = mayor mejora relativa (reduce conflictos criticos)
+- 4 vias = rendimiento optimo (94% hits)
+- 8 vias sin beneficio
+- Tamaño de cache irrelevante (sin reutilizacion temporal)
 
 # Incisos e-f
 ## Codigo utilizado (mejorado)
@@ -474,8 +473,7 @@ ldr d8,  [x8]               //Usa x8
 ldr d9,  [x8, #8]           //Usa x8
 ldr d10, [x8, #16]          //Usa x8
 ```
-Esta forma no hay ningun hazard, mejora la dependencia de datos.  
-Evitamos tener que stallear.
+Esta forma no hay ningun hazard, mejora la dependencia de datos. Evitamos tener que stallear.
 
 ### Resultados con loop unrolling x4, cache=32kB, assoc=1
 | Cache | numCycles | idleCycles | overallHits | readHits |
