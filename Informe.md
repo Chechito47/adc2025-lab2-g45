@@ -500,7 +500,7 @@ Estos son los resultados obtenidos por consola luego de modificar **size** y **a
 La clave de esta gran mejora es la reduccion de los ciclos ociosos:  
 | Procesador | Ciclos ociosos | % tiempo ocioso |
 |------------|----------------|-----------------|
-| In-order | 270,092 | 79% |
+| In-order | 270092 | 79% |
 | Out-of-order | 814 | 0.7% |
 
 ### Comparativa entre todas las configuraciones (obviando cache)
