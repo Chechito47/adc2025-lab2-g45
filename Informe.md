@@ -65,11 +65,9 @@ Estos son los resultados obtenidos por consola luego de modificar **size** y **a
 ### 1 via
 | Cache | numCycles | idleCycles | overallHits | readHits |
 |---------------|--------|-------|------------|------|
-| 8kB | 493949 | 375074 | 24627 | 500 |
+| 8kB | 493949 | 375074 | 3061 | 500 |
 | 16kB | 493997 | 375122 | 3061 | 500 |
 | 32kB | 494181 | 375305 | 3061 | 501 |
-
-![ScreenShot](Imagenes/1via.png)
 
 ### 2 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
@@ -78,16 +76,12 @@ Estos son los resultados obtenidos por consola luego de modificar **size** y **a
 | 16kB | 367876 | 270341 | 11418 | 4426 |
 | 32kB | 367876 | 270341 | 11418 | 4426 |
 
-![ScreenShot](Imagenes/2via.png)
-
 ### 4 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
 |---------------|--------|-------|------------|------|
 | 8kB | 302151 | 221905 | 17712 | 7699 |
 | 16kB | 302235 | 221989 | 17712 | 7699 |
 | 32kB | 302235 | 221989 | 17712 | 7699 |
-
-![ScreenShot](Imagenes/4via.png)
 
 ### 8 vias
 | Cache | numCycles | idleCycles | overallHits | readHits |
@@ -96,14 +90,147 @@ Estos son los resultados obtenidos por consola luego de modificar **size** y **a
 | 16kB | 302235 | 221989 | 17712 | 7699 |
 | 32kB | 302235 | 221989 | 17712 | 7699 |
 
-![ScreenShot](Imagenes/8via.png)
+### Comparativa grafica de los resultados
+![ScreenShot](Imagenes/comparativa_vias_1.png)
+![ScreenShot](Imagenes/comparativa_vias_2.png)
 
 ## Explicacion de los resultados obtenidos
-explicar eso
+### Caracteristicas del codigo
+El codigo implementado tiene las siguientes caracteristicas clave:  
+**Patron de acceso a memoria:**
+```asm
+ldr d3, [x1, x5, lsl #3]   //Lee X[i]
+ldr d4, [x2, x5, lsl #3]   //Lee Y[i]
+str d5, [x3, x5, lsl #3]   //Escribe Z[i]
+```
+- No hay reutilizacion temporal, cada elemento se usa una sola vez
+- Hay tres vectores activos (X, Y y Z) accedidos en cada iteracion
+- Los vectores estan ubicados consecutivamente en memoria
+
+### Analisis de 1 via
+| Cache | numCycles | readHits | Hit Rate |
+|--------|-----------|-------|------|---------------|
+| 8kB | 493949 | 500 | 6,1% |
+| 16kB | 493997 | 500 | 6,1% |
+| 32kB | 494181 | 501 | 6,1% |
+
+El hit rate es bajo, apenas del 6,1%.  
+Vemos que el tamaño de la cache no afecta el rendimiento ya que siempre hay 494K ciclos.  
+
+**Conflictos de mapeo:**  
+En mapeo directo, cada direccion mapea a una unica linea:
+```
+indice_linea = (direccion / tamano linea) % numero lineas
+```
+
+El problema radica en que los vectores X, Y, Z estan separados por 32KB. Para todas las caches, los elementos X[i], Y[i] y Z[i] mapean a la misma linea causando thrashing:
+```
+Ejemplo para i=0:
+1. Lee X[0] => Miss, carga linea N
+2. Lee Y[0] => Miss, desaloja X[0], carga linea N
+3. Escribe Z[0] => Miss, desaloja Y[0], carga linea N
+```
+**Entonces:**
+- 75% del tiempo ocioso esperando memoria
+- Hit rate de lectura del 6,1% (500 de 8198 lecturas)
+- Aumentar el tamaño de la cache no cambia nada
+
+### Analisis de 2 vias
+
+| Cache | numCycles | readHits | Hit Rate | Mejora vs 1 via |
+|--------|-----------|-------|------|---------------|
+| 8kB | 367844 | 4426 | 54% | 25,6% mejor |
+| 16kB | 367876| 4426 | 54% | 25,5% mejor |
+| 32kB | 367876| 4426 | 54% | 25,5% mejor |
+
+Vemos que hay una clara mejora pero el tamaño de la cache sigue sin importar demasiado.  
+**Explicacion:**  
+Con 2 vias cada indice puede almacenar 2 lineas diferentes por lo que X[i] e Y[i] pueden coexistir momentaneamente:
+```
+Lee X[i] => Se carga en via 0
+Lee Y[i] => Se carga en via 1 (X[i] permanece)
+Escribe Z[i] => Desaloja linea menos usada
+```
+**Motivo porque el tamaño de cache no importa:**
+- Tenemos 10-20 lineas simultaneas activas
+- No hay reutilizacion temporal
+- 8KB ya es suficiente para las lineas activas
+
+Probablemente si la cache fuese mas chiquita si importaria.  
+
+**Entonces**:  
+- Hit rate sube a 54% (9 veces mejor que 1 via)
+- 126K ciclos menos
+- 73% del tiempo sigue ocioso
+
+### Analisis de 4 vias
+
+| Cache | numCycles | readHits | Hit Rate | Mejora vs 2 vias |
+|--------|-----------|-------|------|---------------|
+| 8kB | 302151   | 7699 | 94% | 17,9% mejor |
+| 16kB | 302235   | 7699 | 94% | 17,8% mejor |
+| 32kB | 302235   | 7699 | 94% | 17,8% mejor |
+
+Ahora vemos que hay una **gran** mejora, el hit rate es bastante alto pero el tamaño de la cache sigue sin importar demasiado (el motivo sigue siendo el mismo que antes).  
+**Explicacion de la mejora:**  
+El sistema que detecta los patrones secuenciales y trae datos anticipadamente.  
+
+Con 4 vias hay espacio para:
+- Lineas actuales de X, Y, Z
+- Lineas traidas por adelantado
+- Multiples lineas consecutivas activas
+
+**Ejemplo:**
+```
+Cache contiene:
+  Via 0: X[i], X[i+1] (traida por adelantado)
+  Via 1: Y[i], Y[i+1] (traida por adelantado)
+  Via 2: Z[i-1] (escritura anterior)
+  Via 3: Datos traidos por adelantados adicionales
+```
+Entonces las lecturas de X[i] e Y[i] ahora son hits porque se trajeron por adelantado.  
+
+**Entonces:**  
+- Hit rate 94% (casi todos los accesos ahora son exitosos)
+- 65K ciclos menos que 2 vias
+- 39% reduccion total vs 1 via
+- 73% tiempo ocioso (sigue siendo muy alto)
+
+### Analisis de 8 vias
+
+| Cache | numCycles | readHits | Diferencia vs 4 vias |
+|--------|-----------|-------|------|---------------|
+| 8kB | 302219 | 7699 | +68 ciclos (0,02%) |
+| 16kB | 302235 | 7699 | 0 ciclos |
+| 32kB | 302235 | 7699 | 0 ciclos |
+
+Vemos que el rendimiento es practicamente identico a 4 vias.  
+
+**Explicacion:**  
+- Acceso secuencial (no hay saltos aleatorios)
+- Sin reutilizacion temporal (cada dato se usa una vez)
+- Las lineas que se traen anticipadamente ya eran suficientes en 4 vias
+
+Con 4 vias ya hay suficiente espacio. Pasar a 8 vias solo agrega capacidad que no usamos.  
+
+### Resumen
+
+| Vias | Ciclos | Reduccion | Hit Rate | % Ocioso |
+|--------|-----------|-------|------|---------------|
+| 1 | ~494K  | - | 6,1% | 75% |
+| 2 | ~368K  | 25% | 54% | 73% |
+| 4 | ~302K  | 39% | 94% | 73% |
+| 8 | ~302K  | 39% | 94% | 73% |
+
+1. 1 via = mucho thrashing
+2. 2 vias = mayor mejora relativa (reduce conflictos criticos)
+3. 4 vias = rendimiento optimo (94% hits)
+4. 8 vias sin beneficio
+5. Tamaño de cache irrelevante (sin reutilizacion temporal)
 
 # Incisos e-f
 ## Codigo utilizado (mejorado)
-```aarch64
+```asm
 //=== INICIALIZACION ===
 //Cargar parametros y configurar vectores
 ldr w0, N              			//w0 = N = 4096 elementos
@@ -153,7 +280,7 @@ daxpy_loop_unrolled:
     ldr d10, [x8, #16]			//d10 = X[i*4 + 2]
     ldr d11, [x8, #24]			//d11 = X[i*4 + 3]
     
-    //Cargar 4 elementos de consecutivos de X
+    //Cargar 4 elementos de consecutivos de Y
     ldr d12, [x9]				//d12 = Y[i*4 + 0]
     ldr d13, [x9, #8]			//d13 = Y[i*4 + 1]
     ldr d14, [x9, #16]			//d14 = Y[i*4 + 2]
@@ -165,7 +292,7 @@ daxpy_loop_unrolled:
     fmul d18, d0, d10			//d18 = alpha * X[i*4 + 2]
     fmul d19, d0, d11			//d19 = alpha * X[i*4 + 3]
     
-	//Calcular 4 sumas: resultado + Y[j]
+    //Calcular 4 sumas: resultado + Y[j]
     fadd d16, d16, d12			//d16 = d16 + Y[i*4 + 0]
     fadd d17, d17, d13			//d17 = d17 + Y[i*4 + 1]
     fadd d18, d18, d14			//d18 = d18 + Y[i*4 + 2]
@@ -231,7 +358,7 @@ Nuestro codigo mejorado usa 12 registros de punto flotante:
 
 Si hacemos una compracion entre el codigo normal y el mejorado al querer procesar 4 accesos a memoria tendriamos lo siguiente:  
 **Flujo del codigo normal:**
-```aarch64
+```asm
 //Iteracion 1 (i=0):
 ldr d3, [x1, x5, lsl #3]   //Load X[0] => d3
 ldr d4, [x2, x5, lsl #3]   //Load Y[0] => d4
@@ -263,7 +390,7 @@ str d5, [x3, x5, lsl #3]   //Store Z[3]
 El problema es que los datos se descartan luego de usarlos.
 
 **Flujo del codigo mejorado:**
-```aarch64
+```asm
 //Calcular direcciones base
 add x8, x1, x7         //x8 = direccion X[i*4]
 add x9, x2, x7         //x9 = direccion Y[i*4]
@@ -335,13 +462,13 @@ De esta forma al traer una line traemos todos los X o Y segun corresponda.
 2. Mejor uso del pipeline
 
 **Flujo del codigo normal:**
-```aarch64
+```asm
 add x5, x5, #1              //Modifica x5
 ldr d3, [x1, x5, lsl #3]    //Depende de x5
 ```
 
 **Flujo del codigo mejorado:**
-```aarch64
+```asm
 add x8, x1, x7              //Se calcula una vez
 ldr d8,  [x8]               //Usa x8
 ldr d9,  [x8, #8]           //Usa x8
@@ -377,8 +504,41 @@ La clave de esta gran mejora es la reduccion de los ciclos ociosos:
 |------------|----------------|-----------------|
 | In-order | 270,092 | 79% |
 | Out-of-order | 814 | 0.7% |
+
+### Comparativa entre todas las configuraciones (obviando cache)
+
+| Configuracion | Vias | numCycles | Hit Rate | Mejora vs normal 1 via |
+|---------------|------|--------|----------------|------------------------|
+| Normal | 1 | ~494K | ~6,1% | - |
+| Normal | 2 | ~368K | ~54% | ~25.6% |
+| Normal | 4 | ~302K | ~94% | ~38.8% |
+| Normal | 8 | ~302K | ~94% | ~38.8% |
+| **Loop unrolling** | **1** | **342847** | **57%** | **30,6%** |
+
+**Conclusion de la comparacion:**
+
+El codigo mejorado con loop unrolling y 1 via logra:
+- Superar al 2 vias en 7% (342K vs 368K)
+- Acercarse a 4 vias con solo 13% mas ciclos (342K vs 302K)
+- Hit rate de 57% (mejor que 2 vias)
+
+Esto demuestra que las optimizaciones compensan las limitaciones, logrando el objetivo del inciso e.
+
 ## Conclusion
 El codigo mejorado con loop unrolling logro mejor performance que 2-vias con solo una via. Ademas, al usar **out_of_order.py**, se mejoro aun mas la performance. Todo esto se debe en lineas generales a:
 - Menos misspredictions de branches
 - Mejor aprovechamiento del pipeline
 - Datos en registros reducen accesos a memoria
+
+El codigo mejorado con loop unrolling logro mejor performance que 2 vias con solo 1 via (342K vs 368K ciclos), cumpliendo el objetivo del inciso e.  
+
+Al ejecutar este codigo optimizado en el procesador **out_of_order** se obtuvo una mejora del 68% adicional (109K ciclos), logrando un rendimiento 3 veces superior al **in_order** optimizado y 4 veces superior al codigo original con 1 via.
+
+**Factores clave de la mejora:**
+- Loop unrolling: Reduce overhead de control (75% menos branches)
+- Uso intensivo de registros: Mejora localidad
+- Offsets inmediatos: Elimina hazards y mejora pipeline
+- Out_of_order: Oculta latencia de memoria mediante ejecucion paralela (99,7% menos de tiempo ocioso)
+
+Los resultados obtenidos confirman que las optimizaciones del inciso **e** pueden compensar limitaciones usar 1 via.  
+Ademas confirma que la ejecucion de **out_of_order** aumenta el beneficio de estas optimizaciones al usar mejor el paralelismo.
