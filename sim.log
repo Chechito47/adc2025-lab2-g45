@@ -1,0 +1,24 @@
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 23.0.0.1
+gem5 compiled Sep  6 2023 14:34:38
+gem5 started Nov 19 2025 02:03:11
+gem5 executing on 88b054795021, pid 1
+command line: /opt/gem5/build/ARM/gem5.opt -d ./se_results/ /local/scripts/se.py /local/scripts/cpu_config.toml out_of_order /local/benchmarks/ej_daxpy.img
+
+warn: The `get_runtime_isa` function is deprecated. Please migrate away from using this function.
+info: 1. command and arguments: ['/local/benchmarks/ej_daxpy.img']
+Global frequency set at 1000000000000 ticks per second
+warn: No dot file generated. Please install pydot to generate the dot file and pdf.
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+system.remote_gdb: Listening for connections on port 7000
+src/sim/simulate.cc:194: info: Entering event queue @ 0.  Starting simulation...
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.hh:1014: warn: readlink() called on '/proc/self/exe' may yield unexpected results in various settings.
+      Returning '/local/benchmarks/ej_daxpy.img'
+src/arch/arm/insts/pseudo.cc:172: warn: 	instruction 'bti' unimplemented
+src/sim/syscall_emul.cc:74: warn: ignoring syscall mprotect(...)
+exiting with last active thread context (0) @ 47436500

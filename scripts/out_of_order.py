@@ -32,7 +32,7 @@ class L1I(L1Cache):
 class L1D(L1Cache):
     mshrs = 6
     size = "32kB"
-    assoc = 2
+    assoc = 1
     write_buffers = 16
         
 class L2(Cache):
